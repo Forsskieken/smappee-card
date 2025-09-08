@@ -6,7 +6,7 @@ You'll need the Smappee EV integration from
 [![Add to my Home Assistant](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=myny-git&repository=smappee_ev&category=integration)
 
 You need in your configuration.yaml:
-script: !include scripts.yaml
+```yamlscript: !include scripts.yaml```
 
 <img width="445" height="422" alt="image" src="https://github.com/user-attachments/assets/2bd97dfc-c7c0-4af0-bcbc-e45d054d24d7" />
 
