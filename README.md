@@ -1,4 +1,4 @@
-# smappee-card
+# Smappee-card
 This card will give you control over the charging process with Smappee
 You'll need the Smappee EV integration from
 [myny-git]([url)](https://github.com/myny-git/smappee_ev):
