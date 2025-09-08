@@ -15,9 +15,9 @@ This card has 3 sections:
 ## Actions
 <img width="445" height="64" alt="image" src="https://github.com/user-attachments/assets/daf0892c-1454-430f-8dcc-97bd57888f22" />
 
-Here you can start, pauze and stop the charging or start with one phase or slow charging.
-Slow charging is implemented to avoid hight capacity cost which we have now in Flanders.
-This is also the section where we can set the charging station available or unavailable
+Here, you can start, pause, and stop the charging, or choose to charge with one phase or use slow charging. 
+Slow charging is implemented to avoid high capacity costs, which are currently in effect in Flanders. 
+This is also the section where you can set the charging station as available or unavailable
 
 
 ## Charging Mode
