@@ -41,7 +41,7 @@ Under this we see if it's a 3 phase installation or a 1 phase
 
 Here is the code for the card itself:
 
-<pre>
+```yaml
 type: custom:layout-card
 layout_type: grid
 layout:
@@ -380,7 +380,7 @@ cards:
         }
       </style>
 
-</pre>
+```
 
 For the scripts I have the following:
 
