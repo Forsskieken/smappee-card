@@ -30,15 +30,13 @@ This part shows on the left part the charging mode, with the slider one can chan
 
 <img width="445" height="64" alt="image" src="https://github.com/user-attachments/assets/ce99fd71-a8bc-40b8-977b-c54ea328740a" />
 
-On the left one can see the maximum charging speed(11kWh), this is a value that can be changed in the Smappee.
-In the Smappee settings it's called "Fail-safe maximum current 15A" for example, this togheter with the car decides the max charging speed.
-In a one phase installation it's 230 x 15 which is 3,5 kWh
-In a 3 phase installation it's 230x15x3 which is the maximum most cars can handle.
-In the Flemish part of Belgium we have a "capaciteits tarief" which is 4,5 Euro/kWh.
-People who don't drive a lot should be aware that full speed charging will cost them to roughly **600 EURO** extra for litle to no extra comfort.  
-
-Below this we see the actual charging speed
-Under this we see if it's a 3 phase installation or a 1 phase
+On the left, you can see the maximum charging speed (11 kW). This value can be adjusted in the Smappee app. 
+In the Smappee settings, it is referred to as "Fail-safe maximum current 15A." 
+Together with the car, this setting determines the maximum charging speed. 
+For a single-phase installation, the calculation is 230V × 15A = 3.5 kW. 
+For a three-phase installation, it is 230V × 15A × 3, which is the maximum most cars can handle.
+In the Flemish part of Belgium, there is a "capaciteitstarief" (capacity tariff) of €4.50 per kWh. People who don’t drive much should be aware that charging at full speed could cost them roughly €600 extra for little to no added convenience.
+Below this, you can see the actual charging speed, and underneath, it indicates whether the installation is single-phase or three-phase.
 
 Here is the code for the card itself:
 
