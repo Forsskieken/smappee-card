@@ -7,7 +7,7 @@ You'll need the Smappee EV integration from
 
 You need in your configuration.yaml:
 
-```yaml script: !include scripts.yaml```
+```script: !include scripts.yaml```
 
 <img width="445" height="422" alt="image" src="https://github.com/user-attachments/assets/2bd97dfc-c7c0-4af0-bcbc-e45d054d24d7" />
 
