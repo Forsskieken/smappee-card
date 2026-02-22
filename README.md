@@ -1,44 +1,118 @@
-# Smappee-card
-This card will give you control over the charging process with Smappee
-You'll need the Smappee EV integration from
-[myny-git]([url)](https://github.com/myny-git/smappee_ev):
+# Smappee EV Card
 
-[![Add to my Home Assistant](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=myny-git&repository=smappee_ev&category=integration)
+A custom Lovelace card for Home Assistant to control your Smappee EV charging station.
 
-You need in your configuration.yaml:
+## Features
 
-```script: !include scripts.yaml```
+- **Start** charging (with 30 second delay)
+- **Slow** charging (6A, to avoid capacity tariff costs in Flanders)
+- **Pause** charging
+- **Stop** charging
+- **Available/Unavailable** toggle with color feedback
+- **Charging mode** selector (NORMAL / SOLAR / SMART) with slider
+- **Charging speed** slider with live kW calculation
+- Automatic single-phase / three-phase detection
 
-<img width="445" height="422" alt="image" src="https://github.com/user-attachments/assets/2bd97dfc-c7c0-4af0-bcbc-e45d054d24d7" />
+---
 
-This card has 3 sections:
-## Actions
-<img width="445" height="64" alt="image" src="https://github.com/user-attachments/assets/daf0892c-1454-430f-8dcc-97bd57888f22" />
+## Requirements
 
-Here, you can start, pause, and stop the charging, or choose to charge with one phase or use slow charging. 
-Slow charging is implemented to avoid high capacity costs, which are currently in effect in Flanders. 
-This is also the section where you can set the charging station as available or unavailable
+### HACS Integrations
+- [smappee_ev](https://github.com/myny-git/smappee_ev) by myny-git
 
+### HACS Frontend
+- [layout-card](https://github.com/thomasloven/lovelace-layout-card) by thomasloven
+- [button-card](https://github.com/custom-cards/button-card) by RomRider
+- [tailwindcss-template-card](https://github.com/usernein/tailwindcss-template-card)
 
-## Charging Mode
-<img width="445" height="64" alt="image" src="https://github.com/user-attachments/assets/f8e492e5-9dd8-4042-aa46-27dfcd8b065d" />
+---
 
-This part shows on the left part the charging mode, with the slider one can change this 
+## Installation
 
+### 1. Install Dependencies
+Install all HACS integrations and frontend cards listed above.
 
-## Charging speed
+### 2. configuration.yaml
+Add this line to your `/config/configuration.yaml`:
+```yaml
+script: !include scripts.yaml
+```
 
-<img width="445" height="64" alt="image" src="https://github.com/user-attachments/assets/ce99fd71-a8bc-40b8-977b-c54ea328740a" />
+### 3. Scripts
+Add the following to `/config/scripts.yaml`:
+```yaml
+start_charging_with_delay:
+  alias: "Start charging (delay)"
+  mode: single
+  sequence:
+    - delay: "00:00:30"
+    - service: button.press
+      target:
+        entity_id: button.smappee_ev_5130104006_start_charging_1
 
-On the left, you can see the maximum charging speed (11 kW). This value can be adjusted in the Smappee app.   
-In the Smappee settings, it is referred to as "Fail-safe maximum current 15A."   
-Together with the car, this setting determines the maximum charging speed.   
-For a single-phase installation, the calculation is 230V × 15A = 3.5 kW.   
-For a three-phase installation, it is 230V × 15A × 3, which is the maximum most cars can handle.  
-In the Flemish part of Belgium, there is a "capaciteitstarief" (capacity tariff) of €4.50 per kWh. People who don’t drive much should be aware that charging at full speed could cost them roughly €600 extra for little to no added convenience.  
-Below this, you can see the actual charging speed, and underneath, it indicates whether the installation is single-phase or three-phase.  
+stop_charging:
+  alias: "Stop charging"
+  sequence:
+    - service: button.press
+      target:
+        entity_id: button.smappee_ev_5130104006_stop_charging_1
+```
 
-Here is the code for the card itself:
+### 4. Helpers
+Create the following helpers in **Settings → Devices & Services → Helpers → + Create Helper → Number**:
+
+| Name | Entity ID | Min | Max | Step |
+|------|-----------|-----|-----|------|
+| charging_mode_number | `input_number.charging_mode_number` | 0 | 2 | 1 |
+| laadsnelheid_slider_waarde | `input_number.laadsnelheid_slider_waarde` | 6 | 32 | 1 |
+
+### 5. Background Image
+Upload `KIAEV9.png` to `/config/www/KIAEV9.png` on your Home Assistant instance.  
+This makes it accessible via the URL `/local/KIAEV9.png` which the card uses.
+
+> 💡 You can upload files to `/config/www/` using the **File Editor** add-on, **Samba share**, or via **SSH**.  
+> If the `www` folder does not exist yet, create it manually inside `/config/`.
+
+### 6. Add the Card
+1. Go to your Dashboard
+2. Click the pencil icon (edit mode)
+3. Click **+ Add Card**
+4. Scroll down and select **Manual**
+5. Delete the placeholder YAML
+6. Paste the full card YAML (see below)
+7. Click **Save**
+
+---
+
+## Entity IDs
+All entity IDs use the serial number of your Smappee device (`5130104006`).  
+If your serial number is different, replace all occurrences of `5130104006` with your own.
+
+You can find your serial number in **Settings → Devices**.
+
+---
+
+## Card Sections
+
+### Actions
+Start, Slow, Pause, Stop, and Available/Unavailable buttons.  
+Buttons turn red when the station is set to unavailable.
+
+### Charging Mode
+Displays the current charging mode (NORMAL / SOLAR / SMART).  
+Use the slider or the icons to switch between modes.
+
+### Charging Speed
+Shows maximum and current charging speed in kW.  
+Automatically detects single-phase (max 7.4 kW) or three-phase (max 11 kW).  
+Use the slider to adjust the charging speed. The value is sent to the charger when you release the slider.
+
+> ⚠️ **Note for Flanders:** A capacity tariff (*capaciteitstarief*) of €4.50/kWh is in effect.  
+> Use **Slow** charging (6A) to avoid high peak costs.
+
+---
+
+## Full Card YAML
 
 ```yaml
 type: custom:layout-card
@@ -51,7 +125,7 @@ layout:
   height: 100%
 cards:
   - type: picture
-    image: /local/torres-evx.png
+    image: /local/KIAEV9.png
     view_layout:
       grid-column: 1 / span 5
       grid-row: 1
@@ -75,7 +149,7 @@ cards:
         - "--ha-card-border-width": 0px
         - background: |
             [[[
-              if (states['switch.smappee_ev_5130088735_station_available'].state == 'off')
+              if (states['switch.smappee_ev_5130104006_station_available'].state == 'off')
                 return 'var(--error-color)';
               return null;
             ]]]
@@ -93,15 +167,16 @@ cards:
     name: Slow
     tap_action:
       action: call-service
-      service: homeassistant.turn_on
+      service: number.set_value
       service_data:
-        entity_id: script.stop_charging
+        entity_id: number.smappee_ev_5130104006_max_charging_speed_1
+        value: 6
     styles:
       card:
         - "--ha-card-border-width": 0px
         - background: |
             [[[
-              if (states['switch.smappee_ev_5130088735_station_available'].state == 'off')
+              if (states['switch.smappee_ev_5130104006_station_available'].state == 'off')
                 return 'var(--error-color)';
               return null;
             ]]]
@@ -119,15 +194,15 @@ cards:
     name: Pause
     tap_action:
       action: call-service
-      service: input_boolean.turn_on
+      service: button.press
       service_data:
-        entity_id: input_boolean.pause_charging_1
+        entity_id: button.smappee_ev_5130104006_pause_charging_1
     styles:
       card:
         - "--ha-card-border-width": 0px
         - background: |
             [[[
-              if (states['switch.smappee_ev_5130088735_station_available'].state == 'off')
+              if (states['switch.smappee_ev_5130104006_station_available'].state == 'off')
                 return 'var(--error-color)';
               return null;
             ]]]
@@ -145,7 +220,7 @@ cards:
     name: Stop
     tap_action:
       action: call-service
-      service: homeassistant.turn_on
+      service: script.turn_on
       service_data:
         entity_id: script.stop_charging
     styles:
@@ -153,7 +228,7 @@ cards:
         - "--ha-card-border-width": 0px
         - background: |
             [[[
-              if (states['switch.smappee_ev_5130088735_station_available'].state == 'off')
+              if (states['switch.smappee_ev_5130104006_station_available'].state == 'off')
                 return 'var(--error-color)';
               return null;
             ]]]
@@ -167,7 +242,7 @@ cards:
       align-self: center
       justify-self: center
   - type: custom:button-card
-    entity: switch.smappee_ev_5130088735_station_available
+    entity: switch.smappee_ev_5130104006_station_available
     show_state: false
     icon: |
       [[[
@@ -203,7 +278,7 @@ cards:
     always_update: false
     parse_jinja: true
     entities:
-      - select.smappee_ev_5130088735_charging_mode_1
+      - select.smappee_ev_5130104006_charging_mode_1
       - input_number.charging_mode_number
     view_layout:
       grid-column: 1 / span 5
@@ -217,25 +292,25 @@ cards:
           <div class="flex flex-col items-center text-xs">
             <ha-icon icon="mdi:ev-station" class="text-[28px] mb-1"></ha-icon>
             <div class="text-gray-500 text-xs">
-              {{ states('select.smappee_ev_5130088735_charging_mode_1') }}
+              {{ states('select.smappee_ev_5130104006_charging_mode_1') }}
             </div>
           </div>
           <div class="relative flex flex-col items-center w-full h-[40px]">
-            <div class="flex justify-between w-full -mx-1  mb-1 mt-[-6px]">
+            <div class="flex justify-between w-full -mx-1 mb-1 mt-[-6px]">
               <ha-icon
                 icon="mdi:transmission-tower"
-                class="text-[22px] cursor-pointer {% if is_state('select.smappee_ev_5130088735_charging_mode_1', 'NORMAL') %}text-red-500{% else %}text-gray-500{% endif %}"
-                onClick="hass.callService('select', 'select_option', {entity_id: 'select.smappee_ev_5130088735_charging_mode_1', option: 'NORMAL'})"
+                class="text-[22px] cursor-pointer {% if is_state('select.smappee_ev_5130104006_charging_mode_1', 'NORMAL') %}text-red-500{% else %}text-gray-500{% endif %}"
+                onClick="hass.callService('select', 'select_option', {entity_id: 'select.smappee_ev_5130104006_charging_mode_1', option: 'NORMAL'})"
               ></ha-icon>
               <ha-icon
                 icon="mdi:white-balance-sunny"
-                class="text-[22px] cursor-pointer {% if is_state('select.smappee_ev_5130088735_charging_mode_1', 'SOLAR') %}text-yellow-500{% else %}text-gray-500{% endif %}"
-                onClick="hass.callService('select', 'select_option', {entity_id: 'select.smappee_ev_5130088735_charging_mode_1', option: 'SOLAR'})"
+                class="text-[22px] cursor-pointer {% if is_state('select.smappee_ev_5130104006_charging_mode_1', 'SOLAR') %}text-yellow-500{% else %}text-gray-500{% endif %}"
+                onClick="hass.callService('select', 'select_option', {entity_id: 'select.smappee_ev_5130104006_charging_mode_1', option: 'SOLAR'})"
               ></ha-icon>
               <ha-icon
                 icon="mdi:car-clock"
-                class="text-[22px] cursor-pointer {% if is_state('select.smappee_ev_5130088735_charging_mode_1', 'SMART') %}text-blue-500{% else %}text-gray-500{% endif %}"
-                onClick="hass.callService('select', 'select_option', {entity_id: 'select.smappee_ev_5130088735_charging_mode_1', option: 'SMART'})"
+                class="text-[22px] cursor-pointer {% if is_state('select.smappee_ev_5130104006_charging_mode_1', 'SMART') %}text-blue-500{% else %}text-gray-500{% endif %}"
+                onClick="hass.callService('select', 'select_option', {entity_id: 'select.smappee_ev_5130104006_charging_mode_1', option: 'SMART'})"
               ></ha-icon>
             </div>
             <div class="absolute bottom-[1px] w-[97%] h-[5px] bg-gray-300 rounded-sm left-1/2 -translate-x-1/2"></div>
@@ -253,7 +328,7 @@ cards:
                 const value = parseInt(this.value);
                 hass.callService('input_number', 'set_value', {entity_id: 'input_number.charging_mode_number', value: value});
                 const modeMap = {0: 'NORMAL', 1: 'SOLAR', 2: 'SMART'};
-                hass.callService('select', 'select_option', {entity_id: 'select.smappee_ev_5130088735_charging_mode_1', option: modeMap[value]});
+                hass.callService('select', 'select_option', {entity_id: 'select.smappee_ev_5130104006_charging_mode_1', option: modeMap[value]});
               }"
             >
           </div>
@@ -264,11 +339,7 @@ cards:
           -webkit-appearance: none;
           width: 8px;
           height: 20px;
-          border: 5px solid
-            {% if is_state('select.smappee_ev_5130088735_charging_mode_1', 'NORMAL') %}red
-            {% elif is_state('select.smappee_ev_5130088735_charging_mode_1', 'SOLAR') %}#f4b400
-            {% elif is_state('select.smappee_ev_5130088735_charging_mode_1', 'SMART') %}blue
-            {% else %}red{% endif %};
+          border: 5px solid {% if is_state('select.smappee_ev_5130104006_charging_mode_1', 'NORMAL') %}red{% elif is_state('select.smappee_ev_5130104006_charging_mode_1', 'SOLAR') %}#f4b400{% elif is_state('select.smappee_ev_5130104006_charging_mode_1', 'SMART') %}blue{% else %}red{% endif %};
           border-radius: 30%;
           background: white;
           cursor: pointer;
@@ -277,11 +348,7 @@ cards:
         .slider::-moz-range-thumb {
           width: 8px;
           height: 20px;
-          border: 5px solid
-            {% if is_state('select.smappee_ev_5130088735_charging_mode_1', 'NORMAL') %}red
-            {% elif is_state('select.smappee_ev_5130088735_charging_mode_1', 'SOLAR') %}#f4b400
-            {% elif is_state('select.smappee_ev_5130088735_charging_mode_1', 'SMART') %}blue
-            {% else %}red{% endif %};
+          border: 5px solid {% if is_state('select.smappee_ev_5130104006_charging_mode_1', 'NORMAL') %}red{% elif is_state('select.smappee_ev_5130104006_charging_mode_1', 'SOLAR') %}#f4b400{% elif is_state('select.smappee_ev_5130104006_charging_mode_1', 'SMART') %}blue{% else %}red{% endif %};
           border-radius: 30%;
           background: white;
           cursor: pointer;
@@ -295,15 +362,15 @@ cards:
       align-self: end
       justify-self: center
     entities:
-      - sensor.smappee_ev_5130088735_connector_1_power
-      - sensor.smappee_ev_5130088735_connector_1_current_l3
+      - sensor.smappee_ev_5130104006_connector_1_power
+      - sensor.smappee_ev_5130104006_connector_1_current_l3
       - input_number.laadsnelheid_slider_waarde
     content: |
       <ha-card class="w-full p-1">
         <div class="grid grid-cols-[1fr_4fr] items-center gap-2.5 font-sans">
           <div class="flex flex-col items-center text-xs">
             <div class="text-gray-400 text-xs mb-1">
-              {% set l3_state = states('sensor.smappee_ev_5130088735_connector_1_current_l3') %}
+              {% set l3_state = states('sensor.smappee_ev_5130104006_connector_1_current_l3') %}
               {% set l3_exists = l3_state not in ['unavailable', 'unknown', 'none', 'undefined'] %}
               {% set phase_count = 3 if l3_exists else 1 %}
               {% set slider_value = states('input_number.laadsnelheid_slider_waarde') | int %}
@@ -315,7 +382,7 @@ cards:
               {{ max_wattage }} kW Max
             </div>
             <div class="text-gray-400 text-xs">
-              {{ states('sensor.smappee_ev_5130088735_connector_1_power') | float | round(0) }} W Now
+              {{ states('sensor.smappee_ev_5130104006_connector_1_power') | float | round(0) }} W Now
             </div>
             <div class="flex flex-row justify-center gap-2 w-full mt-1">
               <div class="text-[12px] {{ 'text-blue-400' if phase_count == 1 else 'text-gray-400' }}">1~</div>
@@ -332,7 +399,7 @@ cards:
             <div class="absolute bottom-[50px] w-[97%] flex justify-between left-1/2 -translate-x-1/2">
               <div class="text-[10px] text-gray-400">1.4 kW</div>
               <div class="text-[10px] text-gray-400">
-                {% if phase_count == 1 %} 7.4 kW {% else %} 11 kW {% endif %}
+                {% if phase_count == 1 %}7.4 kW{% else %}11 kW{% endif %}
               </div>
             </div>
             <input
@@ -353,6 +420,10 @@ cards:
                   entity_id: 'input_number.laadsnelheid_slider_waarde',
                   value: value
                 });
+                hass.callService('number', 'set_value', {
+                  entity_id: 'number.smappee_ev_5130104006_max_charging_speed_1',
+                  value: value
+                });
               "
             >
           </div>
@@ -363,24 +434,18 @@ cards:
           -webkit-appearance: none;
           width: 8px;
           height: 20px;
-          border: 5px solid;
+          border: 5px solid #60a5fa;
           border-radius: 30%;
-          color: #60a5fa;
+          background: white;
           cursor: pointer;
-        
         }
         .slider::-moz-range-thumb {
           width: 8px;
           height: 20px;
-          border: 5px solid
+          border: 5px solid #60a5fa;
           border-radius: 30%;
-          color: #60a5fa;
+          background: white;
           cursor: pointer;
         }
       </style>
-
 ```
-
-For the scripts I have the following:
-
-<pre>Work in progress</pre>
