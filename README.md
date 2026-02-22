@@ -105,7 +105,7 @@ Use the slider or the icons to switch between modes.
 ### Charging Speed
 Shows maximum and current charging speed in kW.  
 Automatically detects single-phase (max 7.4 kW) or three-phase (max 11 kW).  
-Use the slider to adjust the charging speed.
+Use the slider to adjust the charging speed. The value is sent to the charger when you release the slider.
 
 > ⚠️ **Note for Flanders:** A capacity tariff (*capaciteitstarief*) of €4.50/kWh is in effect.  
 > Use **Slow** charging (6A) to avoid high peak costs.
@@ -418,6 +418,10 @@ cards:
                 const value = parseInt(this.value);
                 hass.callService('input_number', 'set_value', {
                   entity_id: 'input_number.laadsnelheid_slider_waarde',
+                  value: value
+                });
+                hass.callService('number', 'set_value', {
+                  entity_id: 'number.smappee_ev_5130104006_max_charging_speed_1',
                   value: value
                 });
               "
